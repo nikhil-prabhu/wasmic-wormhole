@@ -10,5 +10,8 @@ repository = "https://github.com/nikhil-prabhu/wasmic-wormhole"
 [lib]
 crate-type = ["cdylib"]
 
+[profile.release]
+strip = true
+
 [dependencies]
 wasm-bindgen = "0.2.87"
