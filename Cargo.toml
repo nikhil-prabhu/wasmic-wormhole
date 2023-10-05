@@ -6,6 +6,10 @@ authors = ["Nikhil Prabhu <nikhilprabhu98@gmail.com>"]
 description = "WASM bindings for the Rust version of the magic-wormhole library"
 license = "GPL-3"
 repository = "https://github.com/nikhil-prabhu/wasmic-wormhole"
+keywords = ["programming"]
+
+[badges]
+maintenance = { status = "experimental" }
 
 [lib]
 crate-type = ["cdylib"]
