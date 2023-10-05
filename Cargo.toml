@@ -1,0 +1,14 @@
+[package]
+name = "wasmic-wormhole"
+version = "0.1.0"
+edition = "2021"
+authors = ["Nikhil Prabhu <nikhilprabhu98@gmail.com>"]
+description = "WASM bindings for the Rust version of the magic-wormhole library"
+license = "GPL-3"
+repository = "https://github.com/nikhil-prabhu/wasmic-wormhole"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2.87"
