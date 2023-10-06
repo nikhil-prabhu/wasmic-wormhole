@@ -18,6 +18,39 @@ pub struct AppConfig {
     _app_version: serde_json::Value,
 }
 
+#[wasm_bindgen]
+impl AppConfig {
+    #[wasm_bindgen(constructor)]
+    pub fn new(id: String, rendezvous_url: String) -> Self {
+        Self {
+            id,
+            rendezvous_url,
+            // This is currently a placeholder field, so the value doesn't really matter.
+            _app_version: "".into(),
+        }
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn id(&self) -> String {
+        self.id.clone()
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_id(&mut self, id: String) {
+        self.id = id;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn rendezvous_url(&self) -> String {
+        self.rendezvous_url.clone()
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_rendezvous_url(&mut self, rendezvous_url: String) {
+        self.rendezvous_url = rendezvous_url;
+    }
+}
+
 #[derive(Error, Debug)]
 pub struct WormholeError(#[from] WhError);
 
@@ -43,7 +76,20 @@ pub struct WormholeWelcome {
 }
 
 #[wasm_bindgen]
-/// Establishing Wormhole connection
+impl WormholeWelcome {
+    #[wasm_bindgen(getter)]
+    pub fn welcome(&self) -> String {
+        self.welcome.clone().unwrap_or("".into())
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn code(&self) -> String {
+        self.code.clone()
+    }
+}
+
+#[wasm_bindgen]
+/// Establishing Wormhole connection.
 pub struct Wormhole;
 
 #[wasm_bindgen(start)]
