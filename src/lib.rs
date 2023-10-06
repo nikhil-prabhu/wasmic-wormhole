@@ -5,6 +5,14 @@ use magic_wormhole::WormholeError as WhError;
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen(start)]
+/// Runs initialization stuff for the module.
+///
+/// This function will execute automatically, and need not (and ideally should not) be called manually.
+pub fn _init() {
+    panic::set_hook(Box::new(console_error_panic_hook::hook));
+}
+
 #[wasm_bindgen]
 /// Wormhole configuration corresponding to an upper layer protocol
 ///
@@ -91,11 +99,3 @@ impl WormholeWelcome {
 #[wasm_bindgen]
 /// Establishing Wormhole connection.
 pub struct Wormhole;
-
-#[wasm_bindgen(start)]
-/// Runs initialization stuff for the module.
-///
-/// This function will execute automatically, and need not (and ideally should not) be called manually.
-pub fn _init() {
-    panic::set_hook(Box::new(console_error_panic_hook::hook));
-}
