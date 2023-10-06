@@ -20,3 +20,8 @@ strip = true
 
 [dependencies]
 wasm-bindgen = "0.2.87"
+wasm-bindgen-futures = "0.4.37"
+magic-wormhole = { git = "https://github.com/magic-wormhole/magic-wormhole.rs", rev = "46eceb0bf4a21dceb6e835bb1c8494086c4741a4" }
+console_error_panic_hook = "0.1.7"
+serde_json = "1.0.107"
+thiserror = "1.0.49"
