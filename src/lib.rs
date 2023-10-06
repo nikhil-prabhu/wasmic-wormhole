@@ -1,4 +1,5 @@
 use std::fmt::{self, Formatter};
+use std::panic;
 
 use magic_wormhole::WormholeError as WhError;
 use thiserror::Error;
@@ -44,3 +45,11 @@ pub struct WormholeWelcome {
 #[wasm_bindgen]
 /// Establishing Wormhole connection
 pub struct Wormhole;
+
+#[wasm_bindgen(start)]
+/// Runs initialization stuff for the module.
+///
+/// This function will execute automatically, and need not (and ideally should not) be called manually.
+pub fn _init() {
+    panic::set_hook(Box::new(console_error_panic_hook::hook));
+}
