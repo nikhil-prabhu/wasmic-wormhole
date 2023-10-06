@@ -1,7 +1,11 @@
+use std::borrow::Cow;
 use std::fmt::{self, Formatter};
+use std::future::Future;
 use std::panic;
+use std::pin::Pin;
 
-use magic_wormhole::WormholeError as WhError;
+use magic_wormhole::{AppConfig as WhAppConfig, AppID, Code, Wormhole as Wh, WormholeError as WhError};
+use magic_wormhole::transfer::AppVersion;
 use thiserror::Error;
 use wasm_bindgen::prelude::*;
 
@@ -99,3 +103,75 @@ impl WormholeWelcome {
 #[wasm_bindgen]
 /// Establishing Wormhole connection.
 pub struct Wormhole;
+
+#[wasm_bindgen]
+/// Represents the awaitable handshake future that the `Wormhole::connect_without_code` function returns.
+pub struct Handshake(Pin<Box<dyn Future<Output=Result<Wh, WhError>>>>);
+
+#[wasm_bindgen]
+/// Represents the tuple containing the `WormholeWelcome` and the awaitable handshake future that the `Wormhole::connect_without_code`
+/// function returns.
+pub struct WelcomeAndHandshake(WormholeWelcome, Handshake);
+
+#[wasm_bindgen]
+/// Represents the tuple containing the `WormholeWelcome` and the `Wormhole` object that the `Wormhole::connect_with_code`
+/// function returns.
+pub struct WelcomeAndWormhole(WormholeWelcome, Wh);
+
+#[wasm_bindgen]
+impl Wormhole {
+    /// Generates a core wormhole AppConfig from the provided custom AppConfig.
+    fn get_wh_config(config: &AppConfig) -> WhAppConfig<AppVersion> {
+        WhAppConfig {
+            id: AppID(Cow::from(config.id.clone())),
+            rendezvous_url: Cow::from(config.rendezvous_url.clone()),
+            app_version: AppVersion {},
+        }
+    }
+
+    #[wasm_bindgen]
+    /// Generate a code and connect to the rendezvous server.
+    ///
+    /// It returns the "welcome" from the server along with the awaitable handshake.
+    ///
+    /// # Arguments
+    ///
+    /// * `config` - The app configuration.
+    /// * `code_length` - The number of words to include in the generated wormhole code.
+    pub async fn connect_without_code(config: &AppConfig, code_length: usize) -> Result<WelcomeAndHandshake, WormholeError> {
+        let config = Self::get_wh_config(&config);
+        let (welcome, handshake) = Wh::connect_without_code(config, code_length).await?;
+
+        Ok(WelcomeAndHandshake(
+            WormholeWelcome {
+                welcome: welcome.welcome,
+                code: welcome.code.0,
+            },
+            Handshake(Box::pin(handshake)),
+        ))
+    }
+
+    #[wasm_bindgen]
+    /// Connect to a peer with a code.
+    ///
+    /// It returns the "welcome" from the server along with the wormhole object.
+    ///
+    /// # Arguments
+    ///
+    /// * `config` - The app configuration.
+    /// * `code` - The wormhole code.
+    /// * `expect_claimed_nameplate` - Whether or not to expect a claimed nameplate. Defaults to `false`.
+    pub async fn connect_with_code(config: &AppConfig, code: &str, expect_claimed_nameplate: Option<bool>) -> Result<WelcomeAndWormhole, WormholeError> {
+        let expect_claimed_nameplate = expect_claimed_nameplate.unwrap_or(false);
+        let config = Self::get_wh_config(&config);
+        let (welcome, wh) = Wh::connect_with_code(config, Code(code.to_string()), expect_claimed_nameplate).await?;
+
+        Ok(WelcomeAndWormhole(
+            WormholeWelcome {
+                welcome: welcome.welcome,
+                code: welcome.code.0,
+            },
+            wh,
+        ))
+    }
+}
